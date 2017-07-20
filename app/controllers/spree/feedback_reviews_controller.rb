@@ -6,15 +6,19 @@ class Spree::FeedbackReviewsController < Spree::StoreController
 
   def create
     if @review.present?
-      @feedback_review = @review.feedback_reviews.new(feedback_review_params)
-      @feedback_review.user = spree_current_user
+      @feedback_review = Spree::FeedbackReview.find_or_initialize_by(review_id: @review.id, user_id: spree_current_user.try(:id))
       @feedback_review.locale = I18n.locale.to_s if Spree::Reviews::Config[:track_locale]
+      @feedback_review.rating = feedback_review_params[:rating]
+      @feedback_review.comment = feedback_review_params[:comment]
       authorize! :create, @feedback_review
       @feedback_review.save
     end
 
     respond_to do |format|
       format.html { redirect_to :back  }
+      format.json do 
+        render json: @feedback_review, root: 'feedback_review'
+      end
       format.js   { render action: :create }
     end
   end
@@ -34,6 +38,6 @@ class Spree::FeedbackReviewsController < Spree::StoreController
   end
 
   def sanitize_rating
-    params[:feedback_review][:rating].to_s.sub!(/\s*[^0-9]*\z/, '') unless params[:feedback_review] && params[:feedback_review][:rating].blank?
+    params[:feedback_review][:rating].to_s.sub!(/\s*[^0-9|\-]*\z/, '') unless params[:feedback_review] && params[:feedback_review][:rating].blank?
   end
 end

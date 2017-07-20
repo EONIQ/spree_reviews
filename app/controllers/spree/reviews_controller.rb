@@ -5,6 +5,13 @@ class Spree::ReviewsController < Spree::StoreController
 
   def index
     @approved_reviews = Spree::Review.approved.where(product: @product)
+
+    respond_to do |format|
+      format.html
+      format.json do 
+        render json: @approved_reviews, root: 'reviews'
+      end
+    end
   end
 
   def new
@@ -24,10 +31,24 @@ class Spree::ReviewsController < Spree::StoreController
 
     authorize! :create, @review
     if @review.save
-      flash[:notice] = Spree.t(:review_successfully_submitted)
-      redirect_to spree.product_path(@product)
+      respond_to do |format|
+        format.html do 
+          flash[:notice] = Spree.t(:review_successfully_submitted)
+          redirect_to spree.product_path(@product)
+        end
+        format.json do 
+          render json: @review, root: 'review'
+        end
+      end
     else
-      render :new
+      respond_to do |format|
+        format.html do 
+          render :new
+        end
+        format.json do 
+          render json: {error: { message: @review.errors.full_messages.join('\n'), errors: @review.errors }}, root: 'review', status: 403
+        end
+      end
     end
   end
 

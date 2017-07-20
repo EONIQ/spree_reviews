@@ -22,6 +22,9 @@ module Spree
     # (name or email) on their review.
     preference :show_identifier, :boolean, default: false
 
+    # Whether only buyer can leave review
+    preference :non_buyer_review, :boolean, default: false
+
     def stars
       5
     end

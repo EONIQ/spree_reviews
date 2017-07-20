@@ -32,4 +32,12 @@ class Spree::Review < ActiveRecord::Base
   def recalculate_product_rating
     product.recalculate_rating if product.present?
   end
+
+  def number_of_thumb_up
+    feedback_reviews.select { |feedback_review| feedback_review.rating == 1 }.count
+  end
+
+  def number_of_thumb_down
+    feedback_reviews.select { |feedback_review| feedback_review.rating == -1 }.count
+  end
 end
