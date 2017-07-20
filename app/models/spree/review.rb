@@ -14,8 +14,8 @@ class Spree::Review < ActiveRecord::Base
     message: Spree.t(:you_must_enter_value_for_rating)
   }
 
-  default_scope { joins(:feedback_reviews).select('spree_reviews.*, sum(spree_feedback_reviews.rating) as feedback_rating').order('feedback_rating DESC') }
-
+  default_scope { order('spree_reviews.created_at DESC') }
+  
   scope :localized, ->(lc) { where('spree_reviews.locale = ?', lc) }
   scope :most_recent_first, -> { order('spree_reviews.created_at DESC') }
   scope :oldest_first, -> { reorder('spree_reviews.created_at ASC') }
